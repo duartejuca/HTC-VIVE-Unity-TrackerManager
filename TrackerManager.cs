@@ -1,19 +1,17 @@
-// DESENVOLVIMENTO: JOAO MANOEL FRANÇA DUARTE BONGIOVANI (João Duarte)
-// V1.0 
+// DESENVOLVIMENTO: JOAO MANOEL FRANÇA DUARTE BONGIOVANI (Juca Duarte)
+//v1.0.1
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using UnityEditor;
 using UnityEngine;
 using Valve.VR;
 using static Valve.VR.SteamVR_TrackedObject;
+//TODO using System.Linq; 
 
-namespace Tracker.Inputs
+
+namespace ErgoTraining.Inputs
 {
-
-public enum TrackerPart { LeftShoulder, RightShoulder, LeftFoot, RightFoot, Waist }
-    
     [Serializable]
     public struct VirtualDevice
     {
@@ -27,7 +25,7 @@ public enum TrackerPart { LeftShoulder, RightShoulder, LeftFoot, RightFoot, Wais
         }
     }
     
-    
+    public enum TrackerPart { left_shoulder, right_shoulder, left_foot, right_foot, waist }
 
     [Serializable]
     public struct TrackerLocal
@@ -48,10 +46,9 @@ public enum TrackerPart { LeftShoulder, RightShoulder, LeftFoot, RightFoot, Wais
         public static TrackerManager Instance { get { return instance; } private set { } }
         private const ETrackedDeviceProperty _config = ETrackedDeviceProperty.Prop_ControllerType_String;
         [SerializeField] private int MaxHadwareDevicesConnected = 20;
-        private List<VirtualDevice> VirtualDevices;
+        [SerializeField] private List<VirtualDevice> VirtualDevices;
 
         [SerializeField] private TrackerLocal[] LocalTrackers;
-        
 
         private void Awake() => instance = this;
 
@@ -62,7 +59,7 @@ public enum TrackerPart { LeftShoulder, RightShoulder, LeftFoot, RightFoot, Wais
 
         public List<string> FindAllRegisteredDevices()
         {
-            UnityEngine.Debug.Log("Verificying connected devices.");
+            UnityEngine.Debug.Log("[ErgoTraining]: Verificando dispositivos conectados.");
             ETrackedPropertyError error = ETrackedPropertyError.TrackedProp_Success;
             StringBuilder id = new(64);
             List<string> harddevices = new List<string>();
@@ -81,11 +78,14 @@ public enum TrackerPart { LeftShoulder, RightShoulder, LeftFoot, RightFoot, Wais
 
         public void FillDevices()
         {
+           
             List<string> harddevices = FindAllRegisteredDevices();
-            VirtualDevices.Clear();
+            //VirtualDevices.Clear();
+
+
             for (int hard = 0; hard < harddevices.Count; hard++)
             {
-                if (harddevices[hard].Contains("tracker"))
+                if (_ = harddevices[hard].Contains("tracker"))
                 {
                     VirtualDevice vd = new VirtualDevice((EIndex)hard, harddevices[hard]);
                     VirtualDevices.Add(vd);
@@ -93,43 +93,40 @@ public enum TrackerPart { LeftShoulder, RightShoulder, LeftFoot, RightFoot, Wais
                 }
             }
 
-            AttachVirtualToModule(TrackerPart.RightShoulder);
-            AttachVirtualToModule(TrackerPart.LeftShoulder) ;
-            AttachVirtualToModule(TrackerPart.LeftFoot);
-            AttachVirtualToModule(TrackerPart.RightFoot);
-            AttachVirtualToModule(TrackerPart.Waist);
+            AttachVirtualToModule(TrackerPart.right_shoulder);
+            AttachVirtualToModule(TrackerPart.left_shoulder) ;
+            AttachVirtualToModule(TrackerPart.left_foot);
+            AttachVirtualToModule(TrackerPart.right_foot);
+            AttachVirtualToModule(TrackerPart.waist);
         }
 
-        private string TrackerPartToString(TrackerPart TrackerModule)
-        {
-            string part = "";
-            switch (TrackerModule)
-            {
-                case TrackerPart.RightShoulder: part = "right_shoulder"; break;
-                case TrackerPart.LeftShoulder: part = "left_shoulder"; break;
-                case TrackerPart.LeftFoot: part = "left_foot"; break;
-                case TrackerPart.RightFoot: part = "right_foot"; break;
-                case TrackerPart.Waist: part = "waist"; break;
-            }
-            return part;
-        }
+        
 
         private void AttachVirtualToModule(TrackerPart TrackerModule)
         {
-            foreach(VirtualDevice vd in VirtualDevices)
+            foreach (VirtualDevice vd in VirtualDevices)
             {
-                if (vd.Limb.Contains(TrackerPartToString(TrackerModule)))
+                if (_ = vd.Limb.Contains(TrackerModule.ToString()))
                 {
-                    foreach (TrackerLocal lt in LocalTrackers)
+                    foreach (TrackerLocal ltracker in LocalTrackers)
                     {
-                        if(lt.Limb == TrackerModule)
+                        if(_ = ltracker.Limb.ToString().Contains(TrackerModule.ToString()))
                         {
-                            lt.TrackerObject.index = vd.DeviceIndex;
+                            ltracker.TrackerObject.index = vd.DeviceIndex;
+                            break;
                         }
                     }
+                    continue;
                 }
-                continue;
             }
         }
+
+        // RETORNA LISTA DE ENUMERAÇÃO - HANDLER
+        /*private static List<T> GetEnumList<T>()
+        {
+            T[] array = (T[])Enum.GetValues(typeof(T));
+            List<T> list = new List<T>(array);
+            return list;
+        }*/
     }
 }
