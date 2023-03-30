@@ -1,8 +1,8 @@
-// DESENVOLVIMENTO: JOAO MANOEL FRANÇA DUARTE BONGIOVANI (Juca Duarte)
-//v1.0.1
+// Dev by: JOAO MANOEL FRANÇA DUARTE BONGIOVANI (Juca Duarte)
+// HTC Vive Tracker Manager
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using UnityEngine;
 using Valve.VR;
@@ -10,7 +10,7 @@ using static Valve.VR.SteamVR_TrackedObject;
 //TODO using System.Linq; 
 
 
-namespace ErgoTraining.Inputs
+namespace TrackerManager.Inputs
 {
     [Serializable]
     public struct VirtualDevice
@@ -25,7 +25,7 @@ namespace ErgoTraining.Inputs
         }
     }
     
-    public enum TrackerPart { left_shoulder, right_shoulder, left_foot, right_foot, waist }
+    public enum TrackerPart { left_shoulder, right_shoulder, left_foot, right_foot, waist, /*add more*/ }
 
     [Serializable]
     public struct TrackerLocal
@@ -54,12 +54,12 @@ namespace ErgoTraining.Inputs
 
         private void Start()
         {
-            FillDevices();
+            FillTrackersDevices();
         }
 
         public List<string> FindAllRegisteredDevices()
         {
-            UnityEngine.Debug.Log("[ErgoTraining]: Verificando dispositivos conectados.");
+            UnityEngine.Debug.Log("[TrackerManager]: Scaning Trackers.");
             ETrackedPropertyError error = ETrackedPropertyError.TrackedProp_Success;
             StringBuilder id = new(64);
             List<string> harddevices = new List<string>();
@@ -70,18 +70,15 @@ namespace ErgoTraining.Inputs
                 string device = id.ToString();
                 if (device != string.Empty) 
                 {
-                    harddevices.Add(new string(device)); 
+                    harddevices.Add(new string(device));
                 }
             }
             return harddevices;
         }
 
-        public void FillDevices()
+        public void FillTrackersDevices()
         {
-           
             List<string> harddevices = FindAllRegisteredDevices();
-            //VirtualDevices.Clear();
-
 
             for (int hard = 0; hard < harddevices.Count; hard++)
             {
@@ -98,9 +95,8 @@ namespace ErgoTraining.Inputs
             AttachVirtualToModule(TrackerPart.left_foot);
             AttachVirtualToModule(TrackerPart.right_foot);
             AttachVirtualToModule(TrackerPart.waist);
+            
         }
-
-        
 
         private void AttachVirtualToModule(TrackerPart TrackerModule)
         {
@@ -110,7 +106,7 @@ namespace ErgoTraining.Inputs
                 {
                     foreach (TrackerLocal ltracker in LocalTrackers)
                     {
-                        if(_ = ltracker.Limb.ToString().Contains(TrackerModule.ToString()))
+                        if (_ = ltracker.Limb.ToString().Contains(TrackerModule.ToString()))
                         {
                             ltracker.TrackerObject.index = vd.DeviceIndex;
                             break;
@@ -120,13 +116,5 @@ namespace ErgoTraining.Inputs
                 }
             }
         }
-
-        // RETORNA LISTA DE ENUMERAÇÃO - HANDLER
-        /*private static List<T> GetEnumList<T>()
-        {
-            T[] array = (T[])Enum.GetValues(typeof(T));
-            List<T> list = new List<T>(array);
-            return list;
-        }*/
     }
 }
