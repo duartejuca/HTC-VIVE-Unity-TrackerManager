@@ -4,7 +4,7 @@ Tool Manager for HTC Vive Trackers
 MOTIVATION
 The VIVE documentation and the STEAM documentation does not have satifying information about how to manage the Trackers devices, with a lot of templates where not works with HTC-VIVE-PRO devices, so I made this code to manage any device more easely.
 
-USE
+<b>USE</b><br>
 1 - Import the file to unity<br>
 
 2 - Add to an game object
