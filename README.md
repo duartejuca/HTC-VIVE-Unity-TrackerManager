@@ -10,7 +10,7 @@ USE
 3 - Set in inspector the number total of total devices connected. Ex.: HMD, Controllers, and obvious Trackers.
 
 In my case I use this manager to point the Trackers in Steam Panel Controller Tracker Setup finded in SteamVR Menu > Configuration > Controls > Manager Trackers.
-I use 5 trackers where I setup any of them to an part like, RightShoulder, LeftShoulder, Waist and so on... I made this with only parts I need today, but I will change soon, including all parts.
+I use 5 trackers to an full body setup, I made this with only parts I need today, but I will change soon, including all parts.
 
 So, to configure part objects just put the TrackedObject components in object you want to track, after put this gameobject in Tracker Manager list with limb name set.
 
