@@ -6,8 +6,11 @@ The VIVE documentation and the STEAM documentation does not have satifying infor
 
 USE
 1 - Import the file to unity
+
 2 - Add to an game object
+
 3 - Set in inspector the number total of total devices connected. Ex.: HMD, Controllers, and obvious Trackers
+
 
 In my case I use this manager to point the Trackers in Steam Panel Controller Tracker Setup finded in SteamVR Menu > Configuration > Controls > Manager Trackers.
 I use 5 trackers to an full body setup, I made this with only parts I need today, but I will change soon, including all parts.
