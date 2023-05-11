@@ -1,14 +1,14 @@
 // Dev by: JOAO MANOEL FRANÇA DUARTE BONGIOVANI (Juca Duarte)
 // HTC Vive Tracker Manager
 
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-    using UnityEngine;
-    using Valve.VR;
-    using static Valve.VR.SteamVR_TrackedObject;
-    using System.Linq;
-    using Logger;
+using Logger;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+using Valve.VR;
+using static Valve.VR.SteamVR_TrackedObject;
+using System.Linq; 
 
 namespace ErgoTraining.Inputs
 {
@@ -17,7 +17,6 @@ namespace ErgoTraining.Inputs
     {
         public EIndex DeviceIndex;
         public string Limb;
-
         public VirtualDevice(EIndex deviceIndex, string limb)
         {
             DeviceIndex = deviceIndex;
@@ -32,7 +31,6 @@ namespace ErgoTraining.Inputs
     {
         public SteamVR_TrackedObject TrackerObject;
         public TrackerPart Limb;
-
         public TrackerLocal(SteamVR_TrackedObject deviceIndex, TrackerPart Limb)
         {
             TrackerObject = deviceIndex;
@@ -44,100 +42,105 @@ namespace ErgoTraining.Inputs
     {
         private static TrackerManager instance;
         public static TrackerManager Instance { get { return instance; } private set { } }
-        private const ETrackedDeviceProperty _config = ETrackedDeviceProperty.Prop_ControllerType_String;
+        
         [SerializeField] private int MaxHadwareDevicesConnected = 20;
         [SerializeField] private List<VirtualDevice> VirtualDevices;
         [SerializeField] private TrackerLocal[] LocalTrackers;
-        List<string> harddevices = new List<string>();
-
         private void Awake() => instance = this;
 
-        private StringBuilder GetDeviceTracked(int index)
+
+        private string GetDeviceTracked(int index)
         {
             ETrackedPropertyError error = ETrackedPropertyError.TrackedProp_Success;
-            StringBuilder id = new StringBuilder(64);
-            OpenVR.System.GetStringTrackedDeviceProperty((uint)index, _config, id, 64, ref error);
-            return id;
-        }
 
+            StringBuilder deviceRegistry = new StringBuilder(64);
+            ETrackedDeviceProperty prop = ETrackedDeviceProperty.Prop_Firmware_ProgrammingTarget_String;
+            _ = OpenVR.System.GetStringTrackedDeviceProperty((uint)index, prop, deviceRegistry, 64, ref error);
+            
+            prop = ETrackedDeviceProperty.Prop_ControllerType_String;
+            StringBuilder id = new StringBuilder(64);
+            _ = OpenVR.System.GetStringTrackedDeviceProperty((uint)index, prop, id, 64, ref error);
+
+            LogTool.RegisterLog($"[Device]: {id} : {deviceRegistry}");
+            Debug.Log($"[Device]: {id} : {deviceRegistry}");
+            
+            return id.ToString();
+        }
         public List<string> FindAllRegisteredDevices()
         {
             try
             {
-                LogTool.RegisterLog($"-----------------", false);
-                LogTool.RegisterLog($"[TrackerManager]: Start Scaning Trackers.");
+                LogTool.RegisterLog($"[TrackerManager]: Scaning Trackers.");
+                UnityEngine.Debug.Log("[TrackerManager]: Scaning Trackers.");
 
-                string device = "";
-                StringBuilder id = new StringBuilder(64);
-                for (int hard = 0; hard < MaxHadwareDevicesConnected; hard++)
-                {
-                    try
-                    {
-                        LogTool.RegisterLog($"Tentando ler OPEN VR.");
-                        id = GetDeviceTracked(hard);
-                    }
-                    catch (UnityException e) { LogTool.RegisterLog($"[ERRO] Tentativa de leitura do dispositivo mal sucessedida {e}."); }
-
-                    device = id.ToString();
-                    if (!string.IsNullOrEmpty(device) && device.Contains("tracker"))
-                    {
-                        harddevices.Add(device);
-                    }
-                }
-
+                var harddevices = Enumerable.Range(0, MaxHadwareDevicesConnected)
+                                            .Select(hard => GetDeviceTracked(hard))
+                                            .Where(device => !string.IsNullOrEmpty(device))
+                                            .ToList();
                 return harddevices;
             }
             catch (UnityException e)
             {
                 LogTool.RegisterLog($"[ERRO]: Não foi possível executar FindAllRegisteredDevices. Exception: {e}");
-                UFeedback.GetInstance().ErrorMsgBox.text = e.Message;
+                Debug.Log($"[ERRO]: Não foi possível executar FindAllRegisteredDevices. Exception: {e}");
                 return new List<string>();
             }
         }
 
-        public void FillTrackersDevices()
+    public void FillTrackersDevices()
         {
+            //AllDevicesConnectedInfo();
             try
             {
-                LogTool.RegisterLog($"-----------------");
-                harddevices = FindAllRegisteredDevices();
+                LogTool.RegisterLog($"[TrackerManager]: Começando a registrar trackers.");
+                List<string> harddevices = FindAllRegisteredDevices();
 
-                foreach (var device in harddevices)
+                for (int hard = 0; hard < harddevices.Count; hard++)
                 {
-                    var vd = new VirtualDevice((EIndex)harddevices.IndexOf(device), device);
-                    VirtualDevices.Add(vd);
+                    if (_ = harddevices[hard].Contains("tracker"))
+                    {
+                        VirtualDevice vd = new VirtualDevice((EIndex)hard, harddevices[hard]);
+                        VirtualDevices.Add(vd);
+                        continue;
+                    }
                 }
 
-                LogTool.RegisterLog($"[OK]: FillTrackersDevices OK.");
+                AttachVirtualToModule(TrackerPart.right_shoulder);
+                AttachVirtualToModule(TrackerPart.left_shoulder);
+                AttachVirtualToModule(TrackerPart.left_foot);
+                AttachVirtualToModule(TrackerPart.right_foot);
+                AttachVirtualToModule(TrackerPart.waist);
             }
             catch (UnityException e)
             {
                 LogTool.RegisterLog($"[ERRO]: Não foi possível executar FillTrackersDevices. Exception: {e}");
+                Debug.Log($"[ERRO]: Não foi possível executar FillTrackersDevices. Exception: {e}");
             }
-
-            AttachVirtualToModule(TrackerPart.right_shoulder);
-            AttachVirtualToModule(TrackerPart.left_shoulder);
-            AttachVirtualToModule(TrackerPart.left_foot);
-            AttachVirtualToModule(TrackerPart.right_foot);
-            AttachVirtualToModule(TrackerPart.waist);
         }
 
         private void AttachVirtualToModule(TrackerPart TrackerModule)
         {
+            // refatorado usando linq
             try
             {
-                LogTool.RegisterLog($"-----------------");
-                var vd = VirtualDevices.FirstOrDefault(v => v.Limb.Contains(TrackerModule.ToString()));
-                var ltracker = LocalTrackers.FirstOrDefault(t => t.Limb == TrackerModule);
-                if (ltracker.TrackerObject != null)
+                var matchingDevices = VirtualDevices.Where(vd => vd.Limb.Contains(TrackerModule.ToString()));
+                var matchingTrackers = LocalTrackers.Where(ltracker => ltracker.Limb.ToString().Contains(TrackerModule.ToString()));
+
+                foreach (var vd in matchingDevices)
                 {
-                    ltracker.TrackerObject.index = vd.DeviceIndex;
+                    foreach (var ltracker in matchingTrackers)
+                    {
+                        LogTool.RegisterLog($"[TrackerManager]: Registrando Tracker: {ltracker.TrackerObject} >> Virtual Device: {vd.DeviceIndex} ");
+                        ltracker.TrackerObject.index = vd.DeviceIndex;
+                    }
                 }
-                LogTool.RegisterLog($"[OK]: AttachVirtualToModule OK ");
+
+                LogTool.RegisterLog($"[OK]: AttachVirtualToModule OK.");
             }
             catch (UnityException e)
             {
-                LogTool.RegisterLog($"[ERRO]: Não foi possível executar FillTrackersDevices. Exception: {e}");
+                LogTool.RegisterLog($"[ERRO]: Não foi possível executar AttachVirtualToModule. Exception: {e}");
+                Debug.Log($"[ERRO]: Não foi possível executar AttachVirtualToModule. Exception: {e}");
             }
         }
     }
