@@ -1,20 +1,14 @@
-# HTC-VIVE-UNITY-TrackerManager
-Tool Manager for HTC Vive Trackers
+HTC-VIVE-UNITY-TrackerManager by Joao Duarte
+A tool for managing HTC Vive Trackers in Unity, with an added logging tool for debugging.
 
-MOTIVATION
-The VIVE documentation and the STEAM documentation does not have satifying information about how to manage the Trackers devices, with a lot of templates where not works with HTC-VIVE-PRO devices, so I made this code to manage any device more easely.
+Motivation
+The official documentation for VIVE and STEAM does not provide satisfactory information on how to manage Tracker devices, and many templates do not work with HTC-VIVE-PRO devices. To address this issue, I developed this tool to make managing any device easier.
 
-<b>USE</b><br>
-1 - Import the file to unity<br>
+How to Use
+1. Import the file to Unity.
+2. Add it to a game object.
+3. In the inspector, set the total number of devices connected, such as HMD, controllers, and trackers.
 
-2 - Add to an game object
-
-3 - Set in inspector the number total of total devices connected. Ex.: HMD, Controllers, and obvious Trackers
-
-
-In my case I use this manager to point the Trackers in Steam Panel Controller Tracker Setup finded in SteamVR Menu > Configuration > Controls > Manager Trackers.
-I use 5 trackers to an full body setup, I made this with only parts I need today, but I will change soon, including all parts.
-
-So, to configure part objects just put the TrackedObject components in object you want to track, after put this gameobject in Tracker Manager list with limb name set.
-
-Cheers
+In my case, I use this tool to configure the trackers in the SteamVR menu under "Configuration > Controls > Manager Trackers" for a full-body setup with five trackers. Currently, I only use the parts that I need, but I plan to include all parts soon.
+To configure the tracked objects, simply add the TrackedObject component to the object you want to track and then add this game object to the Tracker Manager list with the limb name set.
+In addition, I have included a logging tool for debugging the trackers. This tool creates an XML file with detailed log information.
