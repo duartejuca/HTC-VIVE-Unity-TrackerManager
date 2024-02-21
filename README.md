@@ -1,4 +1,4 @@
-<h1>HTC-VIVE-UNITY-TrackerManager by Joao Duarte</h1>
+<h1>HTC-VIVE-UNITY-TrackerManager by ThunderJam</h1>
 <p>A tool for managing HTC Vive Trackers in Unity, with an added logging tool for debugging.</p>
 
 <h2>Motivation</h2>
